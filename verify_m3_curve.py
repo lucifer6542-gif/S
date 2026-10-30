@@ -15,6 +15,9 @@ What this script does
      identities hold exactly, (ii) d_v > 0, (iii) trace of the Schur complement equals an explicit
      rational function of t = tan(eps/2), which is positive on (0, tan(pi/24)).
   4. Optional (--sdp, needs cvxpy): compares with the SDP optimum over all 72 variants.
+The two comparisons that involve the transcendental closed form (tau < f(2*sqrt2) and
+bound < f(11/4)) are done with rigorous interval arithmetic (mpmath.iv, 50 digits): the
+enclosure of the larger side must lie strictly above the exact rational on the smaller side.
 Requires: sympy (and mpmath, which comes with it).  Run: python3 verify_m3_curve.py [--sdp]
 """
 import itertools, json, sys, os
@@ -22,6 +25,8 @@ from fractions import Fraction as Fr
 import sympy as sp
 import mpmath as mp
 mp.mp.dps = 50
+from mpmath import iv
+iv.dps = 50
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 pairs = list(itertools.combinations(range(3), 2))
@@ -62,6 +67,21 @@ def f_closed(S0):
     x = mp.sqrt(2) * mp.cos(mp.pi / 3 + mp.acos(S0 / (2 * mp.sqrt(2))) / 3)
     return mp.mpf(9) / 2 * x - 4 * x ** 3 + 3 * mp.sqrt(3) / 2 * mp.sqrt(1 - x * x)
 
+def iv_frac(q):
+    """rigorous interval enclosing the rational q"""
+    return iv.mpf(q.numerator) / iv.mpf(q.denominator)
+
+def f_closed_iv(S0):
+    """interval enclosure of the closed form f(S0); S0 is an interval"""
+    z = S0 / (2 * iv.sqrt(2))
+    theta = iv.atan2(iv.sqrt(1 - z * z), z)          # = arccos(z) for -1 < z < 1
+    x = iv.sqrt(2) * iv.cos(iv.pi / 3 + theta / 3)
+    return iv.mpf(9) / 2 * x - 4 * x ** 3 + 3 * iv.sqrt(3) / 2 * iv.sqrt(1 - x * x)
+
+def less_iv(q, I):
+    """rigorous: the rational q is strictly below every point of the interval I"""
+    return iv_frac(q).b < I.a
+
 def ldl_pd(Z):
     """exact: True iff the symmetric rational matrix Z is positive definite"""
     n = len(Z); A = [row[:] for row in Z]
@@ -82,7 +102,7 @@ def check_orbits_and_certs():
     certs = json.load(open(os.path.join(HERE, "m3_certificates.json")))
     Tm = [[1, -1, 0], [-1, 1, 0], [0, 0, 0]]
     tau = Fr(36048, 10000)   # < f(2*sqrt2) = (3*sqrt6 + 5*sqrt2)/4 = 3.604885...
-    assert mp.mpf(tau.numerator) / tau.denominator < (3 * mp.sqrt(6) + 5 * mp.sqrt(2)) / 4
+    assert less_iv(tau, (3 * iv.sqrt(6) + 5 * iv.sqrt(2)) / 4)      # interval arithmetic
     covered = []
     for cert in certs:
         C = tuple(map(tuple, cert["C"])); a = Fr(cert["a"]); lam = Fr(cert["lam"]); d = [Fr(s) for s in cert["d"]]
@@ -101,8 +121,8 @@ def check_orbits_and_certs():
         # claim: T_max(S0) <= bound for all S0 >= a
         if a == Fr(5, 2) and len(orb) == 8 and bound > tau:
             hi = Fr(11, 4)
-            assert mp.mpf(bound.numerator) / bound.denominator <= f_closed(mp.mpf(hi.numerator) / hi.denominator)
-            print("     bound <= f(11/4): valid for S0 in [5/2, 11/4]")
+            assert less_iv(bound, f_closed_iv(iv_frac(hi)))             # interval arithmetic
+            print("     bound < f(11/4): valid for S0 in [5/2, 11/4]  (interval arithmetic)")
         elif a == Fr(11, 4):
             assert bound <= tau
             print("     bound <= f(2*sqrt2): valid for S0 in [11/4, 2*sqrt2]")

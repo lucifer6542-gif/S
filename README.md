@@ -31,7 +31,7 @@ Apart from the Lean check below, the results are computations, not proofs; their
 | File | Contents |
 |---|---|
 | `verify_A_all.py` | Numerical cross-checks of Theorems 1–5 and 8, Proposition 7, the table of Section 7, and the near-threshold behavior of Theorem 9. Requires numpy and scipy. |
-| `verify_m3_curve.py` | Check of the closed form of Theorem 9 (m=3 quantum curve): enumerates the 72 variants and their 7 orbits, verifies the exact rational dual certificates for six orbits (exact LDLᵀ), and the analytic certificate of the main orbit (exact identities, positive trace). `--sdp` compares with an SDP solve of all 72 variants (needs cvxpy). Requires sympy; reads `m3_certificates.json`. |
+| `verify_m3_curve.py` | Check of the closed form of Theorem 9 (m=3 quantum curve): enumerates the 72 variants and their 7 orbits, verifies the exact rational dual certificates for six orbits (exact LDLᵀ), and the analytic certificate of the main orbit (exact identities, positive trace); the two comparisons with the transcendental closed form (τ < f(2√2) and bound < f(11/4)) use rigorous interval arithmetic (`mpmath.iv`). `--sdp` compares with an SDP solve of all 72 variants (needs cvxpy). Requires sympy; reads `m3_certificates.json`. |
 | `m3_certificates.json` | Rational certificates (λ, d) used by the script above. |
 
 Items based on random sampling (the sample size and minimum margin in Theorem 4, the maximum in Theorem 8) vary with the sampling method and `--seed`. Only the deterministic items (the errors in Theorems 1, 2, 3, and 5, the attaining configuration of Theorem 8, Proposition 7, the table of Section 7, and the bounds of Theorem 9) are compared directly with the values in the paper.
