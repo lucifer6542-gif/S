@@ -11,7 +11,7 @@ Apart from the Lean check below, the results are computations, not proofs; their
 | `cdd_crosscheck.py` | Cross-checks the enumeration of Ω=0 vertices with pycddlib; the returned vertices are converted to rationals and rechecked in exact arithmetic. Imports `verify_B_all.py`. |
 | `full_enum_omega0.py` | Enumerates all 53,856 vertices of the NS polytope with pycddlib, verifies in exact integer arithmetic that each is a vertex (64 deterministic), tests every vertex against all 4096 feedbacks (exactly 1224 have Ω=0), and counts the orbits under the group of order 3072 (46). Needs pycddlib, numpy, scipy; about 12 minutes. |
 | `exact_prop2.py` | Integer-arithmetic check of Proposition 2 (744 feedbacks g with w_g≡0, 347 distinct w_g, minimum 0 for the remaining 3352, 744 process functions). Standard library only. |
-| `thm7_check.py` | Independent reproduction of Proposition 2 via the pairwise-exclusivity check of Theorem 7 of [2] (744 of the 4096 g pass, 680/64 split, 12 for two parties, agreement with the fixed-point check). |
+| `thm7_check.py` | Independent reproduction of Proposition 2 via the pairwise-exclusivity check of Theorem 7 of [8] (744 of the 4096 g pass, 680/64 split, 12 for two parties, agreement with the fixed-point check). |
 | `verify_npa_rational.py` | Verifies the rational dual witnesses at the 19-monomial NPA level in exact arithmetic. |
 | `npa_certificates.json` | Input to the script above: rational boxes and witnesses for the 13 nonlocal orbit representatives. |
 | `research_boxes.json` | The 15 orbit representatives of Ω=0 vertices (output of `verify_B_all.py --research`). |
@@ -41,7 +41,7 @@ Items based on random sampling (the sample size and minimum margin in Theorem 4,
 - Python 3 (tested with 3.12 and 3.15.0b4), numpy ≥ 2.0 (`np.bitwise_count`), scipy (`verify_B_all.py`, `verify_A_all.py`, `full_enum_omega0.py`)
 - sympy (`verify_m3_curve.py`; optional cvxpy for `--sdp`)
 - Standard library only: `verify_npa_rational.py` (fractions), `exact_prop2.py`, `thm7_check.py`
-- Lean (core only; tested with 4.15.0, 4.24.0 and 4.36.0-rc2): only for `OmegaBthm.lean` and `Omega3.lean`
+- Lean (core only; tested with 4.15.0, 4.24.0, 4.35.0 and 4.36.0-rc2): only for `OmegaBthm.lean` and `Omega3.lean`
 - Standard library only: `ghz4_check.py`
 - pycddlib ≥ 3 (tested with pycddlib-standalone 3.0.0): only for `cdd_crosscheck.py` and `full_enum_omega0.py` (`pip install pycddlib-standalone`; the wheel used here is the double-precision build, and the scripts verify the returned vertices in exact arithmetic)
 
@@ -56,21 +56,21 @@ python3 verify_B_all.py --dims          # NS polytope dimension 26, process poly
 python3 verify_B_all.py --selftest      # self-test on the pure parity boxes (14 items)
 python3 verify_B_all.py --prop2         # Proposition 2: 744, 3352, 346, etc.
 python3 verify_B_all.py --gynin         # GYNIN identity and the NS bound
-python3 verify_B_all.py --research      # vertex enumeration, orbit decomposition, NPA verdicts (several minutes per face)
+python3 verify_B_all.py --research      # vertex enumeration, orbit decomposition, NPA verdicts (about 3 minutes)
 python3 verify_B_all.py --boxes tripartite_nonlocal_omega0_boxes.json
 python3 exact_prop2.py                  # integer-arithmetic check of Proposition 2 (expected: 744 347 346 3352 744)
-python3 thm7_check.py                   # check of Theorem 7 of [2] (expected: 744 744 True 64 680 12)
+python3 thm7_check.py                   # check of Theorem 7 of [8] (expected: 744 744 True 64 680 12)
 python3 verify_npa_rational.py npa_certificates.json
 lean OmegaBthm.lean                     # Lean check (1-2 minutes; prints the axioms used, and an error message appears only on failure)
 python3 full_enum_omega0.py --cache raw.pkl   # all 53,856 NS vertices; expected: 64 local, 1224 with Omega=0, 46 orbits (about 12 minutes)
 lean Omega3.lean                        # Lean check of Lemmas 2 and 3 of Paper C (10-15 minutes; prints the axioms used). It needs a local Lean installation; the web editor is too slow for it
 python3 ghz4_check.py                   # GHZ4 box: W=0, Mermin value 8, local bound 4, 6 feedbacks
 python3 verify_m3_curve.py              # Theorem 9 of Paper A (about 10 s; add --sdp for the SDP comparison)
-python3 verify_A_all.py                 # all of Paper A (--adv and --sec7 take several minutes)
+python3 verify_A_all.py                 # all of Paper A (about 3 minutes; includes the --adv and --sec7 parts)
 python3 verify_A_all.py --exact         # Theorems 1, 2, 3 only
 python3 cdd_crosscheck.py --check-h     # check only the H-matrix, without cdd
-python3 cdd_crosscheck.py               # 12 face-orbit representatives -> group expansion (expected: 130 -> 1224)
-python3 cdd_crosscheck.py --all-faces   # all 346 faces, no group used (expected: 1224)
+python3 cdd_crosscheck.py               # 12 face-orbit representatives -> group expansion (expected: 130 -> 1224; about 25 minutes)
+python3 cdd_crosscheck.py --all-faces   # all 346 faces, no group used; very slow (about 2 minutes per face, roughly 11 hours in total) and not part of the final check; `full_enum_omega0.py` is the group-free check that was run
 ```
 
 `--research` generates `face_cache.pkl`, and `cdd_crosscheck.py` generates `cdd_vertices_exact.json` (neither is included in the repository).
