@@ -1,6 +1,6 @@
 # No-Signaling Boxes and Deterministic Feedback: Verification Code and Data
 
-Code and data that reproduce the computations of Paper A (two parties: exact reduction and the quantum curve) Paper B (tripartite binary scenario: boxes with Ω=0, computer-assisted), and Paper C (Ω=0 ⇒ local for three-party commuting-operator quantum boxes, and the four-party GHZ counterexample).
+Code and data that reproduce the computations of Paper A (two parties: exact reduction and the quantum curve), Paper B (tripartite binary scenario: boxes with Ω=0, computer-assisted), and Paper C (Ω=0 ⇒ local for three-party commuting-operator quantum boxes, and the four-party GHZ counterexample).
 Apart from the Lean check below, the results are computations, not proofs; their confidence levels follow the "scope of verification" statements in each paper.
 
 ## Paper B (tripartite binary)
@@ -23,7 +23,7 @@ Apart from the Lean check below, the results are computations, not proofs; their
 
 | File | Contents |
 |---|---|
-| `Omega3.lean` | Lean 4.15.0 (core only) recomputation of the finite parts of Lemmas 2 and 3: all 4096 feedbacks (result `lemma2 = (4072, 24, 0)`) and all 49152 tuples (result `lemma3 = (49104, 48, 48, 0)`). Uses `native_decide`. The C*-algebra part and the trigonometric steps are not formalised. |
+| `Omega3.lean` | Lean 4.15.0 (core only) recomputation of the finite parts of Lemmas 2 and 3: all 4096 feedbacks (result `lemma2 = (4072, 24, 0)`) and all 49152 tuples (result `lemma3 = (49104, 48, 48, 0)`). Uses `native_decide`. The C*-algebra part and the trigonometric steps are not formalized. |
 | `ghz4_check.py` | Checks Theorem 3: the GHZ₄ box has W = 0 for the explicit feedback, Mermin value 8 (local bound 4), and exactly 6 feedbacks with W = 0. Standard library only. |
 
 ## Paper A (two-party binary)
